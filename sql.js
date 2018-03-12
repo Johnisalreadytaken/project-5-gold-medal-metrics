@@ -108,8 +108,16 @@ Returns a SQL query string that will find the medals a country has won
 optionally ordered by the given field in the specified direction.
 */
 
-const orderedMedals = (country, field, sortAscending) => {
-  return `select * from goldMedal where country='${country}' order by ${field} ${sortAscending};`;
+const orderedMedals = (country, field, isAscending) => {
+  let orderingString = '';
+  if (field) {
+    if (isAscending) {
+      orderingString = `ORDER BY ${field} ASC`;
+    } else {
+      orderingString = `ORDER BY ${field} DESC`;
+    }
+  }
+  return `SELECT * FROM GoldMedal WHERE country = '${country}' ${orderingString};`;
 };
 
 /*
@@ -119,9 +127,18 @@ as well as the percentage of this country's wins the sport represents,
 aliased as 'percent'. Optionally ordered by the given field in the specified direction.
 */
 
-const orderedSports = (country, field, sortAscending) => {
-  return `select count(*), sport,  (count(*) / (select count(*) from goldMedal where country='${country}') ) as percent from goldMedal where country='${country}' group by sport order by ${field} ${sortAscending};`;
+const orderedSports = (country, field, isAscending) => {
+  let orderingString = '';
+  if (field) {
+    if (isAscending) {
+      orderingString = `ORDER BY ${field} ASC`;
+    } else {
+      orderingString = `ORDER BY ${field} DESC`;
+    }
+  }
+  return `SELECT sport, COUNT(sport) AS count, (COUNT(sport) * 100 / (select COUNT(*) FROM GoldMedal WHERE country = '${country}')) AS percent FROM GoldMedal WHERE country = '${country}' GROUP BY sport ${orderingString};`;
 };
+
 
 module.exports = {
   createCountryTable,
